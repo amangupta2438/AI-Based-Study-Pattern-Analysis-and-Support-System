@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroStudy | AI Study Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="wizard.css">
+    <!-- Chart.js for visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">NS</span>
+                <h2>NeuroStudy</h2>
+            </div>
+            <ul>
+                <li class="active" onclick="showSection('dashboard')">Dashboard</li>
+                <li onclick="showSection('logger')">Log Session</li>
+                <li onclick="showSection('insights')">AI Insights</li>
+                <li onclick="showSection('roadmap')">Roadmap</li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <header>
+                    <h1>Welcome Back, Scholar</h1>
+                    <p class="subtitle">Here is your daily learning overview</p>
+                </header>
+
+                <div class="stats-grid">
+                    <div class="card stat-card">
+                        <h3>Total Study Time</h3>
+                        <p id="total-time">0h</p>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>Avg. Focus Level</h3>
+                        <p id="avg-focus">-</p>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>Peak Performance</h3>
+                        <p id="peak-time">-</p>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="card chart-card">
+                        <h3>Weekly Focus Trend</h3>
+                        <canvas id="focusChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Logger Section -->
+            <section id="logger" class="section hidden">
+                <header>
+                    <h1>Log Study Session</h1>
+                    <p class="subtitle">Record your progress to feed the AI</p>
+                </header>
+
+                <div class="card form-card">
+                    <form id="log-form">
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <input type="text" id="subject" placeholder="e.g. Neural Networks" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Duration (minutes)</label>
+                            <input type="number" id="duration" placeholder="e.g. 45" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Focus Rating (1-10)</label>
+                            <input type="range" id="focus" min="1" max="10" value="5"
+                                oninput="document.getElementById('focus-val').innerText = this.value">
+                            <span id="focus-val" class="range-val">5</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Notes (Optional)</label>
+                            <textarea id="notes" placeholder="Brief summary of what you learned..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Save Session</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Insights Section -->
+            <section id="insights" class="section hidden">
+                <header>
+                    <h1>AI Analysis</h1>
+                    <p class="subtitle">Deep learning powered suggestions</p>
+                </header>
+
+                <div class="card ai-card">
+                    <div class="ai-header">
+                        <div class="ai-icon">✨</div>
+                        <h3>AI Recommendation</h3>
+                    </div>
+                    <p id="ai-suggestion">Loading analysis...</p>
+                    <button onclick="fetchAnalysis()" class="btn-secondary">Refresh Analysis</button>
+                </div>
+            </section>
+
+            <!-- Roadmap Section -->
+            <section id="roadmap" class="section hidden">
+                <header>
+                    <h1>Study Roadmap</h1>
+                    <p class="subtitle">Plan your day effectively</p>
+                </header>
+
+                <div class="card form-card">
+                    <!-- Wizard Container -->
+                    <div id="roadmap-wizard">
+
+                        <!-- Step 1: Subject Count -->
+                        <div id="step-1" class="wizard-step active-step">
+                            <label>How many subjects do you have?</label>
+                            <input type="number" id="subject-count" min="1" max="10" placeholder="e.g. 3">
+                            <button onclick="wizardNext(1)" class="btn-primary" style="margin-top: 1rem;">Next</button>
+                        </div>
+
+                        <!-- Step 2: Subject Names (Dynamic) -->
+                        <div id="step-2" class="wizard-step hidden">
+                            <label>Enter Subject Names:</label>
+                            <div id="subject-inputs-container"></div>
+                            <button onclick="wizardNext(2)" class="btn-primary" style="margin-top: 1rem;">Next</button>
+                        </div>
+
+                        <!-- Step 3: Time Range (12h Format) -->
+                        <div id="step-3" class="wizard-step hidden">
+                            <label>When are you free to study?</label>
+
+                            <div class="time-input-group" style="margin-bottom: 1rem;">
+                                <small>Start Time</small>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <select id="start-hour" class="time-select">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6" selected>6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                    </select>
+                                    <select id="start-ampm" class="time-select">
+                                        <option value="AM">AM</option>
+                                        <option value="PM" selected>PM</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="time-input-group" style="margin-bottom: 1.5rem;">
+                                <small>End Time</small>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <select id="end-hour" class="time-select">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10" selected>10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                    </select>
+                                    <select id="end-ampm" class="time-select">
+                                        <option value="AM">AM</option>
+                                        <option value="PM" selected>PM</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button onclick="submitWizard()" class="btn-primary">Generate Roadmap Chart</button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="roadmap-display" class="card ai-card hidden" style="margin-top: 2rem;">
+                    <!-- Roadmap content will go here -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
